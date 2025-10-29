@@ -1,0 +1,675 @@
+* {
+  margin: 0px;
+  padding: 0px;
+}
+
+body {
+  scroll-snap-type: y mandatory;
+  overflow: hidden;
+}
+
+#container {
+  z-index: 1;
+  background-color: rgb(37, 37, 37);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.pane {
+  width: 100vw;
+  height: 100vh;
+  scroll-snap-align: start;
+}
+
+/* 첫번째(블랙) 전체화면 */
+.splash {
+  background: #000;
+  color: #fff;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  position: relative;
+}
+.splash-logo {
+  width: 100vw;
+  text-align: center;
+  font-size: 1.8vw;
+  letter-spacing: 0.2em;
+  padding: 20px 0 10px 0;
+  font-weight: bold;
+  position: absolute;
+  top: 20px;
+  left: 0;
+  color: #fff;
+  z-index: 99; /* ← z-index 수치 충분히 높게! */
+  pointer-events: none; /* 인터랙션 방해 방지 */
+  /* 혹시 글라스 박스와 겹칠 때 글자가 안 보이면 text-shadow 추가 */
+  text-shadow: 0 2px 18px #000, 0 0px 2px #bbb;
+  transform: scale(1.12);
+}
+
+/* 각 row(상,중) 1/2씩, 라인 포함 */
+.splash-row {
+  display: flex;
+  flex: 1 0 0;
+  align-items: center;
+  justify-content: space-between;
+  width: 100vw;
+  border-bottom: 2px solid #222;
+  box-sizing: border-box;
+}
+
+.splash-row.top {
+  border-top: 0;
+}
+.splash-row.mid {
+  border-bottom: 0;
+}
+
+/* 텍스트 위치: 좌/우 각각 */
+.splash-text.left {
+  margin-left: 8vw;
+  text-align: left;
+}
+.splash-text.right {
+  margin-right: 8vw;
+  text-align: right;
+}
+
+/* 폰트크기, 정렬, 강조 */
+.splash-text {
+  flex: 1;
+  font-size: 7vw;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.splash-text:active,
+.splash-text:focus {
+  color: #960000;
+}
+.splash-text.clickable:hover {
+  transform: scale(1.12);
+  color: #960000;
+  z-index: 2;
+}
+
+.splash-logo {
+  width: 100vw;
+  text-align: center;
+  font-size: 1vw;
+  letter-spacing: 0.2em;
+  padding: 14px 0 10px 0;
+  font-weight: bold;
+  position: absolute;
+  top: 16px;
+  left: 0;
+  z-index: 3;
+  transform: scale(1.12);
+}
+
+.splash-logo:active,
+.splash-logo:focus {
+  color: #960000;
+}
+.splash-logo.clickable:hover {
+  transform: scale(1.12);
+  color: #960000;
+  z-index: 2;
+}
+
+/* 두 번째(화이트) 화면 */
+.main {
+  background: #fff;
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+}
+.main-nav {
+  width: 100vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 60px 20px 60px;
+  font-weight: bold;
+  font-size: 1.15vw;
+  color: #111;
+  box-sizing: border-box;
+  gap: 24px;
+}
+.main-brand {
+  margin: 0 auto;
+  font-weight: bold;
+  letter-spacing: 0.15em;
+}
+.main-buynow {
+  margin-left: auto;
+  cursor: pointer;
+}
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 3vh;
+}
+.main-title {
+  font-size: 9vw;
+  font-weight: 700;
+  color: #000;
+  text-align: center;
+  letter-spacing: 0.04em;
+  margin-bottom: 1vw;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), color 0.18s;
+  cursor: pointer;
+}
+.main-title:hover {
+  transform: scale(1.13);
+  color: #960000;
+}
+.main-desc {
+  font-size: 2vw;
+  color: #333;
+  margin-top: 0.5vw;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), color 0.18s;
+  cursor: pointer;
+}
+.main-desc:hover {
+  transform: scale(1.11);
+  color: #960000;
+}
+.main-nav span {
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), color 0.18s;
+}
+.main-nav span:hover {
+  transform: scale(1.13);
+  color: #960000;
+  z-index: 2;
+}
+
+/* 반응형 */
+@media (max-width: 1200px) {
+  .splash-text {
+    font-size: 11vw;
+  }
+  .main-title {
+    font-size: 13vw;
+  }
+  .main-desc {
+    font-size: 3.5vw;
+  }
+}
+@media (max-width: 400px) {
+  .splash-text {
+    font-size: 15vw;
+  }
+  .main-title {
+    font-size: 15vw;
+  }
+  .main-nav {
+    font-size: 3vw;
+    padding: 12px 15px;
+  }
+  .main-desc {
+    font-size: 5vw;
+  }
+}
+
+.main-content {
+  top: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 90vh;
+}
+
+/* 새로 조정 */
+.main-title-overlap {
+  position: relative;
+  width: 42vw; /* 중앙부를 충분히 넓게 */
+  max-width: 680px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 1.25 / 1;
+}
+
+/* 이미지가 꽉 채우게 */
+.main-helmet {
+  width: 100%;
+  min-width: 300px;
+  height: auto;
+  display: block;
+  z-index: 1;
+  filter: drop-shadow(0 12px 40px rgba(0, 0, 0, 0.18));
+
+  /* 아래 값을 조정해서 위치를 이동시켜보세요 */
+  position: relative;
+  top: 30px; /* 아래로 30px 이동 */
+}
+
+.main-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 110%;
+  transform: translateY(-55%);
+  width: 100%;
+  text-align: center;
+  font-size: 14vw;
+  font-weight: 200;
+  color: #111;
+  letter-spacing: 0.03em;
+  z-index: 2;
+  pointer-events: none;
+  line-height: 1.05;
+  mix-blend-mode: multiply; /* 어울리면 유지, 아니면 주석! */
+  /* text-shadow: 0 2px 16px #fff; 필요하면 활성화 */
+}
+
+.main-desc {
+  text-align: center;
+  font-size: 2vw;
+  color: #333;
+  margin-top: 150px;
+}
+
+/* 반응형 보완 */
+@media (max-width: 900px) {
+  .main-title-overlap {
+    width: 76vw;
+  }
+  .main-title {
+    font-size: 13vw;
+  }
+  .main-desc {
+    font-size: 4vw;
+  }
+}
+
+.splash-img-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 38vh; /* 크기, 위치 조정: 필요에 따라 변경 */
+  margin: 0 auto;
+}
+
+.splash-helmet {
+  max-height: 80vh; /* 원하는 크기대로 조정 가능 */
+  width: auto;
+  margin: 0 auto;
+  display: block;
+  filter: drop-shadow(0 8px 22px rgba(0, 0, 0, 0.22));
+}
+
+.detail-section {
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  position: relative;
+}
+.detail-image-stack {
+  position: relative;
+  width: 65vw;
+  max-width: 1200px;
+  min-width: 320px;
+  aspect-ratio: 2/1;
+  margin: 70px auto 16px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 배경 이미지는 z-index:1 로 맨 밑 */
+.background-img {
+  position: absolute;
+  left: -270px;
+  top: 78px;
+  width: 180%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 1;
+  border-radius: 4px;
+}
+
+/* 겹쳐지는 이미지는 z-index:2로 위에 올라옴 */
+.overlay-img {
+  position: absolute;
+  left: -1050px;
+  top: -60px;
+  width: 140%;
+  height: 140%;
+  object-fit: contain;
+  object-position: center;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.overlay-img2 {
+  position: absolute;
+  right: -1100px;
+  top: -0px;
+  width: 140%;
+  height: 140%;
+  object-fit: contain;
+  object-position: center;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.detail-caption {
+  width: 70vw;
+  margin: 0 auto 80px auto; /* 가운데 정렬 */
+  color: #fff;
+  font-size: 2.5vw;
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: 0.03em;
+  display: flex;
+  justify-content: center; /* 자식 가운데 정렬 */
+  align-items: flex-start;
+  text-align: center; /* 텍스트 가운데 정렬 */
+}
+.detail-caption .desc {
+  font-size: 1.15vw;
+  color: #dadada;
+  font-weight: 400;
+  margin-left: 24px;
+  max-width: 750px;
+  line-height: 1.5;
+}
+
+/* 기본 Glass Box */
+.glass-tooltip {
+  position: absolute;
+  min-width: 410px;
+  max-width: 410px;
+  padding: 35px 38px 27px 38px;
+  background: rgba(210, 210, 210, 0.26);
+  border-radius: 44px;
+  box-shadow: 0 4px 50px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  color: #fff;
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.37s cubic-bezier(0.33, 1, 0.68, 1),
+    transform 0.34s cubic-bezier(0.33, 1, 0.68, 1);
+  transform: translateY(24px) scale(0.95);
+  font-size: 1.15vw;
+  text-align: left;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 위치 고정 (방향별) */
+.glass-top-left {
+  top: 25vh;
+  left: 2vw;
+  border-radius: 0px 46px 46px 46px;
+}
+.glass-top-right {
+  top: 25vh;
+  right: 2vw;
+  border-radius: 46px 0px 46px 46px;
+}
+.glass-bottom-left {
+  bottom: 25vh;
+  left: 2vw;
+  border-radius: 46px 46px 46px 0;
+}
+
+.glass-bottom-right {
+  bottom: 25vh;
+  right: 2vw;
+  border-radius: 46px 46px 0 46px;
+}
+
+/* 활성화(호버) 시 보여짐 */
+.splash-text:hover .glass-tooltip,
+.splash-text:focus .glass-tooltip {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1.01);
+}
+
+/* 텍스트 및 제목 스타일 */
+.glass-title {
+  font-size: 3.2vw;
+  font-weight: bold;
+  color: #b32a25;
+  margin-bottom: 9px;
+}
+
+.glass-desc {
+  color: #fff;
+  font-size: 1.15vw;
+  margin-top: 3px;
+  line-height: 1.47;
+}
+
+@media (max-width: 700px) {
+  .glass-tooltip {
+    min-width: 65vw;
+    font-size: 2vw;
+    padding: 21px 12px 14px 11px;
+  }
+}
+.helm-items-section {
+  width: 100vw;
+  height: 100vh;
+
+  box-sizing: border-box;
+  position: relative;
+}
+
+.helm-items-title-wrap {
+  width: 35vw;
+  margin-left: 60px;
+  margin-top: 40px;
+}
+
+.helm-items-title {
+  font-size: 7vw;
+  font-family: "Nanum Brush Script", "serif";
+  color: #ffffff;
+  display: block;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  margin-bottom: 48px;
+}
+
+.helm-items-row {
+  width: 70vw;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 56px;
+  margin-left: 32px;
+  margin-top: 24px;
+}
+
+.helm-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 210px;
+  max-width: 270px;
+}
+
+.helm-img {
+  width: 220px;
+  height: auto;
+  margin-bottom: 80px;
+  filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.23));
+  filter: brightness(1) drop-shadow(0 0 30px rgba(255, 255, 255, 0.2));
+  animation: overlayPulse 3s ease-in-out infinite;
+}
+
+.helm-desc-box {
+  opacity: 80%;
+  color: #ffffff;
+  border-radius: 26px;
+  font-size: 0.36em;
+  padding: 18px 15px 14px 15px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
+  width: 98%;
+  line-height: 1.57;
+  font-weight: 400;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+@media (max-width: 800px) {
+  .helm-items-title {
+    font-size: 12vw;
+  }
+  .helm-items-row {
+    width: 95vw;
+    gap: 20px;
+  }
+  .helm-item {
+    min-width: 115px;
+    max-width: 158px;
+  }
+  .helm-img {
+    width: 110px;
+  }
+  .helm-desc-box {
+    font-size: 0.76em;
+    padding: 9px 6px;
+  }
+}
+.helm-items-row {
+  width: 70vw;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 32px;
+  margin-left: 32px;
+  margin-top: 24px;
+}
+
+.helm-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 210px;
+  max-width: 270px;
+}
+
+.helm-plus {
+  font-size: 3.5vw;
+  color: #222;
+  font-weight: bold;
+  margin: 0 18px 42px 18px;
+  align-self: flex-end;
+  font-family: "Arial Black", "Arial", sans-serif;
+  filter: drop-shadow(0 2px 6px #aaa);
+  user-select: none;
+}
+/* --- overlay breathing animation --- */
+@keyframes overlayPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.03);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
+
+.overlay-img {
+  position: absolute;
+  top: 35px;
+  left: 100%;
+  width: 75%;
+  height: auto;
+  animation: overlayPulse 3s ease-in-out infinite;
+  transition: filter 0.8s ease;
+  filter: brightness(1) drop-shadow(0 0 30px rgba(255, 255, 255, 0.2));
+}
+
+.overlay-img2 {
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 70%;
+  height: auto;
+  animation: overlayPulse 3s ease-in-out infinite;
+  transition: filter 0.8s ease;
+  filter: brightness(1) drop-shadow(0 0 30px rgba(255, 255, 255, 0.2));
+}
+
+/* 광선효과가 밝아졌다 어두워지기 */
+.overlay-img.glow,
+.overlay-img2.glow {
+  filter: brightness(1.4) drop-shadow(0 0 80px rgba(255, 255, 255, 0.6));
+}
+
+.helm-img.glow {
+  filter: brightness(1.4) drop-shadow(0 0 80px rgba(255, 255, 255, 0.6));
+}
+
+.slide-box {
+  font-size: 0.36em;
+  padding: 18px 15px 14px 15px;
+  line-height: 1.57;
+  font-weight: 400;
+  text-align: left;
+  z-index: 6;
+  position: absolute;
+  top: 50%;
+  width: 42%;
+
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: all 1s ease;
+}
+
+.left-box {
+  left: -200px; /* 화면 밖에서 시작 */
+  top: 80%;
+}
+.right-box {
+  right: -200px;
+  top: 10%;
+}
+
+.slide-box.active.left-box {
+  left: calc(50% - 230px); /* 중앙으로 이동 */
+  opacity: 1;
+}
+.slide-box.active.right-box {
+  right: calc(50% - 230px);
+  opacity: 1;
+}
