@@ -356,58 +356,58 @@
   ],
   "images": [
     {
-      "uri": "textures/Clasp_baseColor.png"
+      "uri": "Clasp_baseColor.png"
     },
     {
-      "uri": "textures/Clasp_metallicRoughness.png"
+      "uri": "Clasp_metallicRoughness.png"
     },
     {
-      "uri": "textures/Clasp_normal.png"
+      "uri": "Clasp_normal.png"
     },
     {
-      "uri": "textures/Hinge_baseColor.png"
+      "uri": "Hinge_baseColor.png"
     },
     {
-      "uri": "textures/Hinge_metallicRoughness.png"
+      "uri": "Hinge_metallicRoughness.png"
     },
     {
-      "uri": "textures/Hinge_normal.png"
+      "uri": "Hinge_normal.png"
     },
     {
-      "uri": "textures/UpperVisor_baseColor.png"
+      "uri": "UpperVisor_baseColor.png"
     },
     {
-      "uri": "textures/UpperVisor_metallicRoughness.png"
+      "uri": "UpperVisor_metallicRoughness.png"
     },
     {
-      "uri": "textures/UpperVisor_normal.png"
+      "uri": "UpperVisor_normal.png"
     },
     {
-      "uri": "textures/LowerVisor_baseColor.png"
+      "uri": "LowerVisor_baseColor.png"
     },
     {
-      "uri": "textures/LowerVisor_metallicRoughness.png"
+      "uri": "LowerVisor_metallicRoughness.png"
     },
     {
-      "uri": "textures/LowerVisor_normal.png"
+      "uri": "LowerVisor_normal.png"
     },
     {
-      "uri": "textures/Bevor_baseColor.png"
+      "uri": "Bevor_baseColor.png"
     },
     {
-      "uri": "textures/Bevor_metallicRoughness.png"
+      "uri": "Bevor_metallicRoughness.png"
     },
     {
-      "uri": "textures/Bevor_normal.png"
+      "uri": "Bevor_normal.png"
     },
     {
-      "uri": "textures/Helm.001_baseColor.png"
+      "uri": "Helm.001_baseColor.png"
     },
     {
-      "uri": "textures/Helm.001_metallicRoughness.png"
+      "uri": "Helm.001_metallicRoughness.png"
     },
     {
-      "uri": "textures/Helm.001_normal.png"
+      "uri": "Helm.001_normal.png"
     }
   ],
   "materials": [
