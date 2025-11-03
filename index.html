@@ -383,7 +383,9 @@ if (activeIndex === 3) {
     // --- 링 움직임 ---
     ring.position.y = 0.4 + Math.sin(time) * 0.3;
 const targetSceneY = activeIndex === 1 ? -1.5 : 0; // INFO 섹션에서 살짝 아래로
-
+// --- 헬멧 높이 변경 (2번째 섹션에서만 살짝 내려감) ---
+const targetSceneY = activeIndex === 1 ? -0.8 : -1.5; // INFO 섹션에서 조금 내려가게
+model.position.y += (targetSceneY - model.position.y) * 0.05;
     // --- 버튼 hover 효과 ---
     crosses.forEach((cross, index) => {
       const speed = 0.5 + index * 0.2;
@@ -594,4 +596,5 @@ if (topButton) {
     </button>
   </body>
 </html>
+
 
