@@ -370,7 +370,7 @@ if (activeIndex === 3) {
 
 
     // --- 헬멧 확대 (2번째 버튼: INFO) ---
-    const targetScale = activeIndex === 1 ? 0.50 : 0.30;
+    const targetScale = activeIndex === 1 ? 0.40 : 0.20;
     const currentScale = model.scale.x;
     const newScale = currentScale + (targetScale - currentScale) * 0.05;
     model.scale.set(newScale, newScale, newScale);
@@ -594,3 +594,4 @@ if (topButton) {
     </button>
   </body>
 </html>
+
