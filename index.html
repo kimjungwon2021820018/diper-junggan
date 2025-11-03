@@ -166,8 +166,8 @@
         "scene.gltf",
         (gltf) => {
           model = gltf.scene;
-          model.scale.set(0.15, 0.15, 0.15);
-          model.position.set(0, -2.6, 0);
+          model.scale.set(0.12, 0.12, 0.12);
+          model.position.set(0, -1.5, 0);
           scene.add(model);
         },
         undefined,
@@ -370,7 +370,7 @@ if (activeIndex === 3) {
 
 
     // --- 헬멧 확대 (2번째 버튼: INFO) ---
-    const targetScale = activeIndex === 1 ? 0.55 : 0.45;
+    const targetScale = activeIndex === 1 ? 0.50 : 0.30;
     const currentScale = model.scale.x;
     const newScale = currentScale + (targetScale - currentScale) * 0.05;
     model.scale.set(newScale, newScale, newScale);
@@ -382,6 +382,7 @@ if (activeIndex === 3) {
 
     // --- 링 움직임 ---
     ring.position.y = 0.4 + Math.sin(time) * 0.3;
+const targetSceneY = activeIndex === 1 ? -1.5 : 0; // INFO 섹션에서 살짝 아래로
 
     // --- 버튼 hover 효과 ---
     crosses.forEach((cross, index) => {
