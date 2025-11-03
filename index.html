@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="myStyle.css" />
+    <script src="myScroll.js" defer></script>
+ <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
+    <title>ARMET</title>
+    <style>
+      body {
+        margin: 0;
+        overflow-x: hidden;
+      }
+      canvas {
+        z-index: 3;
+        display: flex;
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+      }
+      .glass-box {
+        z-index: 4;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 200px;
+        height: 30px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 0.5rem;
+        pointer-events: none;
+        transition: opacity 0.5s, transform 0.5s; /* 추가: 부드럽게 사라짐 */
+      }
+      #container {
+        position: relative;
+        z-index: 1;
+      }
+      .pane {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 3rem;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: stretch;
+        position: relative;
+      }
+      .first {
+        background: linear-gradient(135deg, #ffffff 0%, #949494 100%);
+      }
+      .second {
+        background: linear-gradient(135deg, #000000 0%, #2c2c2c 100%);
+      }
+      .third {
+        background: linear-gradient(135deg, #000000 0%, #000000 100%);
+      }
+      .fourth {
+        background: linear-gradient(135deg, #000000 0%, #323232 100%);
+      }
+      #backBtn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 5;
+        padding: 15px 30px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50px;
+        color: white;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s;
+      }
+      #backBtn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .label-box {
+        position: fixed;
+        transform: translate(-50%, -50%);
+        padding: 8px 16px;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(6px);
+        border-radius: 12px;
+        color: rgb(0, 0, 0);
+        font-size: 0.9rem;
+        opacity: 0;
+        transition: opacity 0.3s, transform 0.3s;
+        pointer-events: none;
+        z-index: 6;
+      }
+      .label-box.hover {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.1);
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <div class="glass-box">MEDIEAVAL CLOSE HELMET</div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.141.0/build/three.module.js",
+          "GLTFLoader": "https://unpkg.com/three@0.141.0/examples/jsm/loaders/GLTFLoader.js"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import { GLTFLoader } from "GLTFLoader";
+      import * as THREE from "three";
+
+      const scene = new THREE.Scene();
+      scene.background = null;
+
+      const renderer = new THREE.WebGLRenderer({
+        canvas: document.querySelector("#canvas"),
+        antialias: true,
+        alpha: true,
+      });
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      
+      // --- 톤 매핑 추가 (권장) ---
+      renderer.toneMapping = THREE.ACESFilmicToneMapping; // <-- 변경: 톤 매핑 방식 설정
+      renderer.toneMappingExposure = 0.7; // <-- 변경: 노출(밝기) 설정
+
+      const camera = new THREE.PerspectiveCamera(
+        30,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      camera.position.set(0, 0, 15);
+
+      let targetRotationX = 0,
+        targetRotationY = 0;
+      let time = 0;
+
+      const textureLoader = new THREE.TextureLoader();
+      const backgroundPanels = [];
+      let model;
+
+      const loader = new GLTFLoader();
+      loader.load(
+        "scene.gltf",
+        (gltf) => {
+          model = gltf.scene;
+          model.scale.set(0.12, 0.12, 0.12);
+          model.position.set(0, -1.5, 0);
+          scene.add(model);
+        },
+        undefined,
+        (error) => {
+          console.log("GLTF 로드 실패, 기본 지오메트리 사용");
+          const geometry = new THREE.DodecahedronGeometry(1);
+          const material = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            metalness: 0.7,
+            roughness: 0.2,
+          });
+          model = new THREE.Mesh(geometry, material);
+          model.position.set(0, 0.4, 0);
+          scene.add(model);
+        }
+      );
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+      const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+      dirLight.position.set(0, 10, 10);
+      scene.add(ambientLight, dirLight);
+
+
+      const radius = 3;
+      const points = [];
+      // (이하 나머지 코드는 동일하므로 생략)...
+      
+      // ... (기존 코드와 동일) ...
+      // (animate() 함수 등 나머지 부분은 그대로 사용)
+
+      const segments = 100;
+      for (let i = 0; i <= segments; i++) {
+        const angle = (i / segments) * Math.PI * 2;
+        points.push(
+          new THREE.Vector3(
+            Math.cos(angle) * radius,
+            0,
+            Math.sin(angle) * radius
+          )
+        );
+      }
+      const path = new THREE.CatmullRomCurve3(points, true);
+      const tubeGeometry = new THREE.TubeGeometry(
+        path,
+        segments,
+        0.008,
+        16,
+        true
+      );
+      const tubeMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.8,
+      });
+      const ring = new THREE.Mesh(tubeGeometry, tubeMaterial);
+      ring.position.y = 0.4;
+      ring.rotation.x = Math.PI / 2;
+      scene.add(ring);
+
+      const crosses = [];
+      const crossMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.9,
+      });
+      const crossLabels = ["HOME", "INFO", "MODEL INFO", "CONSTRUCTION"];
+      for (let i = 0; i < 4; i++) {
+        const crossGroup = new THREE.Group();
+
+        const horizontalBar = new THREE.Mesh(
+          new THREE.BoxGeometry(0.1, 0.02, 0.02),
+          crossMaterial
+        );
+        const verticalBar = new THREE.Mesh(
+          new THREE.BoxGeometry(0.02, 0.1, 0.02),
+          crossMaterial
+        );
+        crossGroup.add(horizontalBar, verticalBar);
+
+        const roundedRectShape = new THREE.Shape();
+        const rectWidth = 0.25,
+          rectHeight = 0.25,
+          cornerRadius = 0.05;
+        roundedRectShape.moveTo(-rectWidth / 2 + cornerRadius, -rectHeight / 2);
+        roundedRectShape.lineTo(rectWidth / 2 - cornerRadius, -rectHeight / 2);
+        roundedRectShape.quadraticCurveTo(
+          rectWidth / 2,
+          -rectHeight / 2,
+          rectWidth / 2,
+          -rectHeight / 2 + cornerRadius
+        );
+        roundedRectShape.lineTo(rectWidth / 2, rectHeight / 2 - cornerRadius);
+        roundedRectShape.quadraticCurveTo(
+          rectWidth / 2,
+          rectHeight / 2,
+          rectWidth / 2 - cornerRadius,
+          rectHeight / 2
+        );
+        roundedRectShape.lineTo(-rectWidth / 2 + cornerRadius, rectHeight / 2);
+        roundedRectShape.quadraticCurveTo(
+          -rectWidth / 2,
+          rectHeight / 2,
+          -rectWidth / 2,
+          rectHeight / 2 - cornerRadius
+        );
+        roundedRectShape.lineTo(-rectWidth / 2, -rectHeight / 2 + cornerRadius);
+        roundedRectShape.quadraticCurveTo(
+          -rectWidth / 2,
+          -rectHeight / 2,
+          -rectWidth / 2 + cornerRadius,
+          -rectHeight / 2
+        );
+
+        const roundedRectGeometry = new THREE.ShapeGeometry(roundedRectShape);
+        const roundedRectMaterial = new THREE.MeshBasicMaterial({
+          color: 0x800000,
+          transparent: true,
+          opacity: 0.5,
+          side: THREE.DoubleSide,
+        });
+        const roundedRect = new THREE.Mesh(
+          roundedRectGeometry,
+          roundedRectMaterial
+        );
+        crossGroup.add(roundedRect);
+
+        const angle = (i / 4) * Math.PI * 2;
+        crossGroup.position.x = Math.cos(angle) * radius;
+        crossGroup.position.z = Math.sin(angle) * radius;
+        crossGroup.position.y = 0.4;
+
+        const label = document.createElement("div");
+        label.className = "label-box";
+        label.textContent = crossLabels[i];
+        document.body.appendChild(label);
+
+        crosses.push({
+          group: crossGroup,
+          angle: angle,
+          rectMesh: roundedRect,
+          targetScale: 1,
+          currentScale: 1,
+          targetOpacity: 0.5,
+          currentOpacity: 0.5,
+          label: label,
+        });
+
+        scene.add(crossGroup);
+      }
+
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+
+      window.addEventListener("mousemove", (event) => {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        const mouseX = event.clientX / window.innerWidth - 0.5;
+        const mouseY = event.clientY / window.innerHeight - 0.5;
+        targetRotationY = mouseX * Math.PI * 0.5;
+        targetRotationX = mouseY * Math.PI * 0.3;
+      });
+
+      const targetOffsetX = 5;
+      const section4 = document.querySelector(".fourth");
+      const glassBox = document.querySelector(".glass-box"); // 추가
+
+let activeIndex = 0; // 현재 클릭된 버튼 인덱스 (0: HOME, 1: INFO, 2: MODEL INFO, 3: CONSTRUCTION)
+
+function animate() {
+  requestAnimationFrame(animate);
+  time += 0.01;
+
+  if (model) {
+    // --- glass-box 표시/숨김 ---
+    if (activeIndex === 3) { // 4번째 버튼 클릭 시 숨김
+      glassBox.style.opacity = "0";
+      glassBox.style.transform = "translate(-50%, -50%) scale(0.8)";
+    } else {
+      glassBox.style.opacity = "1";
+      glassBox.style.transform = "translate(-50%, -50%) scale(1)";
+    }
+
+    // --- 헬멧 회전 ---
+    const fixedRotationY = -1;
+if (activeIndex === 3) {
+  // 4번째 섹션: 헬멧이 좌측을 기본으로, 마우스는 약하게만 반응
+  const leftOffset = -Math.PI / 2.5; // 왼쪽 약 70도 회전
+  const reducedMouseY = targetRotationY * 0.4; // 마우스 영향 20%만 반영
+  const reducedMouseX = targetRotationX * 0.4; // X축도 약하게
+  const adjustedY = leftOffset + reducedMouseY;
+
+  model.rotation.y += (adjustedY - model.rotation.y) * 0.05;
+  model.rotation.x += (reducedMouseX - model.rotation.x) * 0.05;
+} else {
+  // 다른 섹션은 원래대로
+  model.rotation.y += (targetRotationY - model.rotation.y) * 0.05;
+  model.rotation.x += (targetRotationX - model.rotation.x) * 0.05;
+}
+
+
+    // --- 헬멧 확대 (2번째 버튼: INFO) ---
+    const targetScale = activeIndex === 1 ? 0.50 : 0.30;
+    const currentScale = model.scale.x;
+    const newScale = currentScale + (targetScale - currentScale) * 0.05;
+    model.scale.set(newScale, newScale, newScale);
+
+    // --- 헬멧 좌측 이동 (4번째 버튼) ---
+    const targetOffsetX = activeIndex === 3 ? 5 : 0;
+    model.position.x += (targetOffsetX - model.position.x) * 0.05;
+    ring.position.x += (targetOffsetX - ring.position.x) * 0.05;
+
+    // --- 링 움직임 ---
+    ring.position.y = 0.4 + Math.sin(time) * 0.3;
+
+// --- 헬멧 높이 변경 (2번째 섹션에서만 살짝 내려감) ---
+const targetSceneY = activeIndex === 1 ? -2.8 : -1.5; // INFO 섹션에서 조금 내려가게
+model.position.y += (targetSceneY - model.position.y) * 0.05;
+    // --- 버튼 hover 효과 ---
+    crosses.forEach((cross, index) => {
+      const speed = 0.5 + index * 0.2;
+      cross.angle += speed * 0.001;
+      const localX = Math.cos(cross.angle) * radius;
+      const localZ = Math.sin(cross.angle) * radius;
+
+      cross.group.position.x += (localX + targetOffsetX - cross.group.position.x) * 0.05;
+      cross.group.position.y = ring.position.y + localZ;
+      cross.group.position.z = 0;
+      cross.group.lookAt(camera.position);
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObject(cross.rectMesh);
+      cross.targetScale = intersects.length > 0 ? 5 : 1;
+      cross.targetOpacity = intersects.length > 0 ? 0.9 : 0.5;
+
+      cross.currentScale += (cross.targetScale - cross.currentScale) * 0.1;
+      cross.rectMesh.scale.x = cross.currentScale;
+      cross.currentOpacity += (cross.targetOpacity - cross.currentOpacity) * 0.05;
+      cross.rectMesh.material.opacity = cross.currentOpacity;
+
+      const screenPos = cross.group.position.clone();
+      screenPos.project(camera);
+      const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+      const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
+      cross.label.style.left = `${x}px`;
+      cross.label.style.top = `${y}px`;
+
+      if (intersects.length > 0) cross.label.classList.add("hover");
+      else cross.label.classList.remove("hover");
+    });
+  }
+
+  renderer.render(scene, camera);
+}
+
+animate();
+
+const thirdSection = document.querySelector(".third");
+const leftBox = document.querySelector(".left-box");
+const rightBox = document.querySelector(".right-box");
+
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        // 섹션이 보이면 애니메이션 실행
+        leftBox.classList.add("active");
+        rightBox.classList.add("active");
+      } else {
+        // 벗어나면 다시 원위치 (원하면 제거)
+        leftBox.classList.remove("active");
+        rightBox.classList.remove("active");
+      }
+    });
+  },
+  { threshold: 0.3 }
+);
+
+observer.observe(thirdSection);
+
+// ✅ 버튼 클릭 시 섹션 이동 대신 헬멧 모션 변경
+// ✅ 클릭 이벤트 (둥근 사각형 클릭 시 헬멧 변화 + 섹션 이동)
+window.addEventListener("click", () => {
+  raycaster.setFromCamera(mouse, camera);
+
+  crosses.forEach((cross, index) => {
+    const intersects = raycaster.intersectObject(cross.rectMesh);
+    if (intersects.length > 0) {
+      // 1️⃣ 클릭한 버튼 인덱스 저장 → 헬멧 애니메이션 제어
+      activeIndex = index;
+      console.log(`버튼 ${index + 1} 클릭됨`);
+
+      // 2️⃣ 해당 섹션으로 부드럽게 스크롤 이동
+      const section = document.querySelector(`.pane:nth-of-type(${index + 1})`);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  });
+});
+
+
+
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+      const topButton = document.getElementById("backBtn");
+if (topButton) {
+  topButton.addEventListener("click", (event) => {
+    event.preventDefault(); // 기본 scrollTo 동작 막기
+    activeIndex = 0; // 헬멧 초기 상태로
+    console.log("Top 버튼 클릭됨 (Home 버튼과 동일)");
+    const firstSection = document.querySelector(".pane:nth-of-type(1)");
+    firstSection?.scrollIntoView({ behavior: "smooth" });
+  });
+}
+    </script>
+
+    <div id="container">
+      <section class="pane first">
+        <nav class="main-nav">
+          <span>#MEDIEAVAL</span>
+          <span>#1700S</span>
+          <span>#ARMOR</span>
+          <span>#KNIGHT</span>
+          <span class="main-brand">ARMET</span>
+          <span class="main-buynow">HKNU</span>
+        </nav>
+        <div class="main-content">
+          <div class="main-title-overlap">
+            <span class="main-title">ARMET</span>
+          </div>
+          <div class="main-desc">17세기 최고의 예술품 투구 </div>
+        </div>
+      </section>
+      <section class="pane second">
+        <div class="splash-row top">
+          <span class="splash-text clickable left">
+            1750’s
+            <div class="glass-tooltip glass-top-left">
+              <div class="glass-desc">
+           이 시기는 전쟁 기술과 금속 공예가 함께 발전하던 시대였다. 투구는 단순한 방어구를 넘어, 장인의 정교한 조각과 문양으로 전사의 신분과 권위를 드러내는 예술품이 되었다.
+              </div>
+            </div>
+          </span>
+          <span class="splash-text clickable right">
+            STEEL
+            <div class="glass-tooltip glass-top-right">
+              <div class="glass-desc">
+                 강철은 투구 제작의 핵심 재료로, 묵직하지만 단단한 내구성을 자랑했다. 칼날과 화살을 견디며 머리를 보호했고, 세밀한 조각을 새길 수 있을 만큼 가공성이 뛰어났다.
+              </div>
+            </div>
+          </span>
+        </div>
+        <div class="splash-img-wrap"></div>
+        <div class="splash-row mid">
+          <span class="splash-text clickable left">
+            WAR
+            <div class="glass-tooltip glass-bottom-left">
+              <div class="glass-desc">
+                전쟁터에서 투구는 생존의 필수 장비이자, 두려움을 이겨내는 용기의 상징이었다. 빛나는 금속 표면은 적에게 위압감을 주었고, 전사는 이 투구를 쓰고 자신의 신념을 지켰다.
+              </div>
+            </div>
+          </span>
+          <span class="splash-text clickable right">
+            HONOR
+            <div class="glass-tooltip glass-bottom-right">
+              <div class="glass-desc">
+               투구의 장식과 형태는 전사의 명예를 나타내는 표식이었다. 전투에서 흠집 하나하나는 그가 살아온 싸움의 흔적이자, 용맹과 충성의 증거로 남았다.
+              </div>
+            </div>
+          </span>
+        </div>
+        <span class="splash-logo">ARMET</span>
+      </section>
+      <section class="pane third">
+        
+        <div class="detail-image-stack">
+          <!-- 배경: 맨 아래에 위치 -->
+          <img
+            src="img/background1.png"
+            class="background-img"
+            alt="Red Abstract Background"
+          />
+          <!-- 겹쳐질 투구 이미지: overlay로 추가 -->
+          <img src="img/tuguside.png" class="overlay-img" alt="Helmet Side" />
+          <img src="img/tuguside.png" class="overlay-img2" alt="Helmet Side" />
+        </div>
+        <div class="slide-box left-box">이 투구의 둥근 형태는 타격을 흘려보내기 위한 곡면 설계입니다. 둥글게 만든 이유는 칼날이나 창끝이 미끄러지도록 유도해 충격을 분산시키고, 머리를 보호하는 방어 효과를 극대화하기 위해서입니다.</div>
+<div class="slide-box right-box">투구의 닫힌 구조는 보호와 위엄을 동시에 상징합니다. 얼굴을 가려 감정을 숨기고, 시야를 제한해 집중을 높이며, 장식을 통해 신분과 권위를 드러냅니다. 침묵 속의 힘을 표현하는 장치입니다.</div>
+        <div class="detail-caption">
+          CLOSED & ROUND
+        
+        </div>
+      </section>
+      <section class="pane fourth"><section class="helm-items-section">
+      <div class="helm-items-title-wrap">
+        <span class="helm-items-title">부품</span>
+      </div>
+      <div class="helm-items-row">
+        <div class="helm-item">
+          <img src="img/set1.png" class="helm-img" alt="Helmet 1" />
+          <div class="helm-desc-box">상부 본체는 머리를 감싸는 둥근 구조로, 유려한 곡선과 정교한 문양이 특징이다. 투구의 형태를 결정하며 충격을 흡수하는 중심 역할을 한다.</div>
+        </div>
+        <span class="helm-plus">+</span>
+        <div class="helm-item">
+          <img src="img/set2.png" class="helm-img" alt="Helmet 2" />
+          <div class="helm-desc-box">전면 보호판은 얼굴을 덮는 부품으로, 뾰족한 턱선과 중앙의 돌출부가 강한 인상을 만든다. 리벳 장식이 구조적 견고함을 더한다.</div>
+        </div>
+        <span class="helm-plus">+</span>
+        <div class="helm-item">
+          <img src="img/set3.png" class="helm-img" alt="Helmet 3" />
+          <div class="helm-desc-box">하단 결합판은 내부를 고정하는 부품으로, 슬롯과 구멍을 통해 다른 파츠를 연결한다. 가장자리의 세밀한 문양이 기능성과 장식을 함께 드러낸다.</div>
+        </div>
+      </div>
+</section>
+    </div>
+    <button
+      id="backBtn"
+      
+      
+    >
+      top
+    </button>
+  </body>
+</html>
