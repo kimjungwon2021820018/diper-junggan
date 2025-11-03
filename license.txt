@@ -1,0 +1,11 @@
+Model Information:
+* title:	Knights Helmet
+* source:	https://sketchfab.com/3d-models/knights-helmet-19209cccc6af49e99198f406f643417a
+* author:	Kirayuu (https://sketchfab.com/Kirayuu)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Knights Helmet" (https://sketchfab.com/3d-models/knights-helmet-19209cccc6af49e99198f406f643417a) by Kirayuu (https://sketchfab.com/Kirayuu) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
